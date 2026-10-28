@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สรุปกองทุนรายเดือน</title>
+<meta name="theme-color" content="#ECEEF1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{--ink:#111827;--ink2:#374151;--muted:#6B7280;--faint:#9CA3AF;--line:#ECEEF1;
+  --green:#16A34A;--red:#DC2626;--orange:#EA580C;--blue:#2563EB;--gold1:#C9A86A;--gold2:#9C7B45;--nav:#1C1C1E}
+*{box-sizing:border-box}
+body{margin:0;background:#ECEEF1;color:var(--ink);font-family:'Noto Sans Thai','Leelawadee UI',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;font-size:14px}
+button,input,select,textarea{font:inherit;color:inherit}
+
+.controls{max-width:760px;margin:0 auto;padding:16px 16px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.controls a{color:var(--ink);text-decoration:none;font-size:13px;margin-right:auto}
+.controls select,.controls .btn{border:1px solid #E2E4E8;background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;cursor:pointer}
+.controls .btn.primary{background:var(--nav);color:#fff;border-color:var(--nav)}
+.opts{max-width:760px;margin:10px auto 0;padding:0 16px;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink2)}
+.opts label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.opts textarea{width:100%;border:1px solid #E2E4E8;border-radius:12px;padding:8px 12px;resize:vertical;min-height:42px;background:#fff}
+.wrap{padding:16px;overflow-x:auto}
+
+/* the exported sheet: fixed 760px so the image/PDF looks the same on every device */
+.sheet{width:760px;margin:0 auto;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.band{background:linear-gradient(135deg,#2A2418,#4A3B22);color:#fff;padding:22px 26px;display:flex;align-items:center;gap:14px}
+.band .logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;font-weight:700;
+  background:linear-gradient(135deg,var(--gold1),var(--gold2))}
+.band h1{margin:0;font-size:20px;font-weight:600}
+.band .sub{color:#E8DCC2;font-size:13px}
+.band .grow{flex:1}
+.band .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:8px 14px;text-align:right}
+.band .badge small{display:block;color:#E8DCC2;font-size:11.5px}
+.band .badge b{font-size:18px}
+.body{padding:20px 26px 22px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{border:1.5px solid;border-radius:14px;padding:10px 12px}
+.kpi .t{font-size:12px;color:var(--ink2)}
+.kpi .v{font-size:20px;font-weight:700;margin:2px 0;letter-spacing:-.3px}
+.kpi .d{font-size:11px;color:var(--muted)}
+.kpi.green{border-color:#86EFAC;background:#F0FDF4} .kpi.green .v{color:var(--green)}
+.kpi.red{border-color:#FCA5A5;background:#FEF2F2} .kpi.red .v{color:var(--red)}
+.kpi.blue{border-color:#93C5FD;background:#EFF6FF} .kpi.blue .v{color:var(--blue)}
+.kpi.orange{border-color:#FDBA74;background:#FFF7ED} .kpi.orange .v{color:var(--orange)}
+.up{color:var(--green)} .down{color:var(--red)}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px}
+h2{font-size:14px;font-weight:600;margin:0 0 6px;display:flex;justify-content:space-between;align-items:baseline}
+h2 span{font-size:12px;color:var(--muted);font-weight:400}
+.sec+.sec{margin-top:16px}
+.row{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.row .n{flex:1;min-width:0}
+.row .n small{color:var(--muted);font-size:11px;margin-left:4px}
+.row b{font-weight:600;white-space:nowrap}
+.row.total{border-bottom:0;border-top:1.5px solid var(--ink);margin-top:2px;padding-top:7px}
+.row.total b{font-size:14px}
+
+.debt{padding:7px 0;border-bottom:1px dashed var(--line)}
+.debt .top{display:flex;gap:8px;font-size:13px}
+.debt .top .n{flex:1;font-weight:500}
+.track{height:6px;border-radius:99px;background:#F1F2F4;margin-top:5px;overflow:hidden}
+.track>div{height:100%;border-radius:99px;background:linear-gradient(90deg,#F59E0B,#EA580C)}
+.debt .s{font-size:11px;color:var(--muted);margin-top:3px}
+.goal{margin-top:12px;padding:10px 12px;border-radius:12px;background:linear-gradient(135deg,#FBF6EC,#F5ECDB);
+  border:1px solid #EBDDBF;font-size:12.5px;color:#6B5426;line-height:1.6}
+.goal b{color:#4A3816}
+.box{border-radius:12px;background:#F7F8FA;padding:10px 12px;font-size:12.5px;line-height:1.6}
+.note{margin-top:16px;border-left:4px solid var(--gold1);background:#FBF6EC;border-radius:8px;padding:10px 14px;font-size:13.5px;white-space:pre-wrap}
+.foot{display:flex;justify-content:space-between;margin-top:16px;font-size:11px;color:var(--faint)}
+
+.toast{position:fixed;top:16px;left:50%;transform:translate(-50%,-80px);background:var(--nav);color:#fff;
+  padding:9px 16px;border-radius:999px;font-size:13px;transition:transform .25s;z-index:50}
+.toast.show{transform:translate(-50%,0)}
+
+@page{size:A4 portrait;margin:8mm}
+@media print{
+  body{background:#fff}
+  .controls,.opts,.toast{display:none}
+  .wrap{padding:0;overflow:visible}
+  .sheet{box-shadow:none;border-radius:0;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="controls">
+  <a href="./">← กลับหน้าหลัก</a>
+  <select id="month" aria-label="เลือกเดือน"></select>
+  <button class="btn" id="pdfBtn">🖨️ PDF</button>
+  <button class="btn primary" id="pngBtn">🖼️ บันทึกเป็นรูป</button>
+</div>
+<div class="opts">
+  <label><input type="checkbox" id="optSav" checked> เงินออมลูก</label>
+  <label><input type="checkbox" id="optPer" checked> งบส่วนตัวภรรยา</label>
+  <label><input type="checkbox" id="optDate"> วันที่จ่าย</label>
+  <textarea id="msg" placeholder="ข้อความถึงแฟน (ไม่ใส่ก็ได้) เช่น เดือนนี้ค่าครรภ์เพิ่มนิดหน่อยนะ 💛"></textarea>
+</div>
+<div class="wrap"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="calc.js"></script>
+<script src="store.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let V = [], cur = 0;
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function diff(v, p, good, label) {
+  if (p == null) return '&nbsp;';
+  const d = v - p;
+  if (Math.abs(d) < 0.5) return 'เท่ากับ ' + label;
+  return `<span class="${(d > 0) === good ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${baht(Math.abs(d))}</span> จาก ${label}`;
+}
+
+function render() {
+  const m = V[cur], p = V[cur - 1], pl = p ? p.label : '';
+  const showDate = $('optDate').checked;
+  const row = (name, v, cls, small) => `<div class="row"><span class="n">${esc(name)}${small ? `<small>${esc(small)}</small>` : ''}</span><b class="${cls || ''}">${v}</b></div>`;
+  const kpi = (cls, title, v, d) => `<div class="kpi ${cls}"><div class="t">${title}</div><div class="v">${baht(v)}</div><div class="d">${d}</div></div>`;
+
+  const income = [{name: 'ยกมาจากเดือนก่อน', amount: m.carryIn}, ...m.income];
+  const fund = [...m.fund].sort((a, b) => (a.date || '').localeCompare(b.date || '') || a.idx - b.idx);
+  const debts = [...m.debts].sort((a, b) => (a.balance <= 0) - (b.balance <= 0) || (a.left ?? 1e9) - (b.left ?? 1e9));
+  const open = debts.filter(d => d.balance > 0 && d.left != null);
+  const last = open.length ? open.reduce((a, d) => d.left > a.left ? d : a) : null;
+  const drop = p ? p.totals.debt - m.totals.debt : 0;
+
+  let html = `
+  <div class="band">
+    <div class="logo">฿</div>
+    <div class="grow"><h1>สรุปกองทุนปลดหนี้</h1><div class="sub">ประจำเดือน ${m.full}</div></div>
+    ${drop > 0 ? `<div class="badge"><small>เดือนนี้หนี้ลดลง</small><b>🎉 ${baht(drop)}</b></div>` : ''}
+  </div>
+  <div class="body">
+    <div class="kpis">
+      ${kpi('green', '💰 เงินเข้ากองทุน', m.totals.income, diff(m.totals.income, p && p.totals.income, true, pl))}
+      ${kpi('red', '🧾 จ่ายค่างวด/หนี้', m.totals.fund, diff(m.totals.fund, p && p.totals.fund, false, pl))}
+      ${kpi('blue', '🏦 เหลือยกไปเดือนหน้า', m.totals.carry, diff(m.totals.carry, p && p.totals.carry, true, pl))}
+      ${kpi('orange', '📉 หนี้คงเหลือรวม', m.totals.debt, diff(m.totals.debt, p && p.totals.debt, false, pl))}
+    </div>
+    <div class="cols">
+      <div>
+        <div class="sec"><h2>🟢 เงินเข้ากองทุน</h2>
+          ${income.map(i => row(i.name, baht(i.amount), 'up')).join('')}
+          <div class="row total"><span class="n">รวมเงินเข้า</span><b class="up">${baht(m.totals.income)}</b></div>
+        </div>
+        <div class="sec"><h2>🔴 จ่ายออกจากกองทุน</h2>
+          ${fund.map(f => row(cat(f.cat).icon + ' ' + f.name, baht(f.amount), '',
+            [f.inst ? `งวด ${f.inst[0]}/${f.inst[1]}` : '', showDate && f.date ? thDate(f.date) : ''].filter(Boolean).join(' • '))).join('')}
+          <div class="row total"><span class="n">รวมจ่าย</span><b class="down">${baht(m.totals.fund)}</b></div>
+          <div class="row" style="border:0"><span class="n"><b>เหลือยกไป ${labelOf(keyAdd(m.key, 1))}</b></span><b class="${m.totals.carry >= 0 ? 'up' : 'down'}">${baht(m.totals.carry)}</b></div>
+        </div>
+      </div>
+      <div>
+        <div class="sec"><h2>🟠 หนี้แต่ละก้อน <span>คงเหลือ</span></h2>
+          ${debts.map(d => {
+            const prog = d.total_n ? Math.min(1, d.paid_n / d.total_n) : null;
+            const s = d.balance <= 0 ? '🎉 ปิดแล้ว'
+              : [d.total_n ? `งวด ${d.paid_n}/${d.total_n}` : '', d.left != null ? `ปลดราว ${labelOf(keyAdd(m.key, d.left))}` : ''].filter(Boolean).join(' • ');
+            return `<div class="debt"><div class="top"><span>${esc(d.icon)}</span><span class="n">${esc(d.name)}</span><b>${baht(d.balance)}</b></div>
+              ${prog != null ? `<div class="track"><div style="width:${prog * 100}%"></div></div>` : ''}<div class="s">${s}</div></div>`;
+          }).join('')}
+          ${last ? `<div class="goal">🎯 ถ้าผ่อนแบบนี้ต่อไป จะปลดหนี้หมดราว <b>${labelOf(keyAdd(m.key, last.left))}</b> (อีก ${last.left} เดือน)<br>
+            ก้อนถัดไปที่จะหมด: <b>${esc(open[0].name)}</b> ใน ${labelOf(keyAdd(m.key, open[0].left))}</div>` : ''}
+        </div>
+        ${$('optSav').checked ? `<div class="sec"><h2>👧 เงินออมลูกสาว <span>ไม่นับเป็นหนี้</span></h2>
+          ${row('ยกมา', baht(m.savings.start))}${row('เพิ่มเข้า', '+' + baht(m.savings.add), 'up')}
+          ${m.savings.items.map(i => row(i.name, '−' + baht(i.amount), 'down')).join('')}
+          <div class="row total"><span class="n">คงเหลือ</span><b style="color:var(--blue)">${baht(m.savings.balance)}</b></div></div>` : ''}
+        ${$('optPer').checked && m.personal.length ? `<div class="sec"><h2>👛 งบส่วนตัวภรรยา <span>อ้างอิง ไม่หักจากกองทุน</span></h2>
+          <div class="box">${m.personal.map(i => `${esc(i.name)} <b>${baht(i.amount)}</b>`).join(' • ')}<br>รวม <b>${baht(m.totals.personal)}</b></div></div>` : ''}
+      </div>
+    </div>
+    ${$('msg').value.trim() ? `<div class="note">💬 ${esc($('msg').value.trim())}</div>` : ''}
+    <div class="foot"><span>* ยอดรถยนต์ประมาณจากงวดที่เหลือ × ค่างวด</span><span>สร้างเมื่อ ${new Date().toLocaleDateString('th-TH-u-ca-gregory', {day: 'numeric', month: 'short', year: 'numeric'})}</span></div>
+  </div>`;
+  $('sheet').innerHTML = html;
+  history.replaceState(null, '', location.pathname + '?m=' + m.key);
+  document.title = 'สรุปกองทุน ' + m.label;
+}
+
+async function savePng() {
+  if (!window.html2canvas) { toast('โหลดตัวสร้างรูปไม่ได้ (ต้องต่อเน็ต) ใช้ปุ่ม PDF แทนได้'); return; }
+  const btn = $('pngBtn'); btn.disabled = true; btn.textContent = '⏳ กำลังสร้างรูป…';
+  try {
+    await document.fonts.ready;
+    const canvas = await html2canvas($('sheet'), {scale: 2, backgroundColor: '#ffffff', useCORS: true});
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const name = `สรุปกองทุน-${V[cur].key}.png`;
+    const file = new File([blob], name, {type: 'image/png'});
+    if (navigator.canShare && navigator.canShare({files: [file]}) && matchMedia('(pointer:coarse)').matches) {
+      await navigator.share({files: [file], title: name});
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      toast('บันทึกรูปแล้ว ดูในโฟลเดอร์ Downloads');
+    }
+  } catch (e) {
+    toast('สร้างรูปไม่สำเร็จ: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '🖼️ บันทึกเป็นรูป';
+  }
+}
+
+async function load() {
+  V = compute((await Store.load()) || Store.empty());
+  if (!V.length) { $('sheet').innerHTML = '<div class="body">ยังไม่มีข้อมูลเดือน</div>'; return; }
+  const want = new URLSearchParams(location.search).get('m');
+  cur = Math.max(0, V.findIndex(m => m.key === want));
+  if (!want || V[cur].key !== want) cur = V.length - 1;
+  $('month').innerHTML = V.map(m => `<option value="${m.key}">${m.label}</option>`).join('');
+  $('month').value = V[cur].key;
+  render();
+}
+
+$('month').addEventListener('change', e => { cur = V.findIndex(m => m.key === e.target.value); render(); });
+['optSav', 'optPer', 'optDate'].forEach(id => $(id).addEventListener('change', render));
+$('msg').addEventListener('input', render);
+$('pdfBtn').addEventListener('click', () => { document.title = 'สรุปกองทุน-' + V[cur].key; window.print(); });
+$('pngBtn').addEventListener('click', savePng);
+load().catch(() => { $('sheet').innerHTML = '<div class="body">โหลดข้อมูลไม่ได้ </div>'; });
+</script>
+</body>
+</html>
