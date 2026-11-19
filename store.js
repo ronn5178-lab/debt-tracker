@@ -57,14 +57,17 @@ const Store = (() => {
 
   async function backup(db) {
     const d = new Date(), stamp = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    const name = `กองทุน-สำรอง-${stamp}.json`;
-    const blob = new Blob([JSON.stringify(db, null, 1)], {type: 'application/json'});
-    const file = new File([blob], name, {type: 'application/json'});
-    if (navigator.canShare && navigator.canShare({files: [file]}) && matchMedia('(pointer:coarse)').matches) {
-      await navigator.share({files: [file], title: name});
+    const text = JSON.stringify(db, null, 1);
+    let name = `fund-backup-${stamp}.json`;
+    // Android Chrome refuses to share .json files, so phones share it as .txt (restore reads both)
+    const txt = new File([text], `fund-backup-${stamp}.txt`, {type: 'text/plain'});
+    if (matchMedia('(pointer:coarse)').matches && navigator.canShare && navigator.canShare({files: [txt]})) {
+      name = txt.name;
+      await navigator.share({files: [txt], title: name});
     } else {
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob); a.download = name; a.click();
+      a.href = URL.createObjectURL(new Blob([text], {type: 'application/json'})); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }
     try { localStorage.setItem(LS_BACKUP, String(Date.now())); } catch (e) {}
