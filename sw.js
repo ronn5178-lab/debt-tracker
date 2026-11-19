@@ -1,8 +1,8 @@
 // Offline support for the installed phone app.
 // App files: network first (so updates arrive), cache when offline.
 // Fonts / html2canvas from CDNs: cache first.
-// Bump VERSION when the list of app files changes.
-const VERSION = 'fund-v2';
+// Bump VERSION on every upload, together with APP_VERSION in index.html.
+const VERSION = 'fund-v3';
 const CORE = ['./', 'index.html', 'summary.html', 'calc.js', 'store.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

@@ -336,7 +336,7 @@ hr{border:0;border-top:1px solid #ECEEF1;margin:16px 0 8px}
 <dialog id="dataDlg">
   <h3>💾 ข้อมูล & สำรอง</h3>
   <div class="box" id="dataInfo"></div>
-  <button type="button" class="btn primary wide" id="backupBtn">⬇️ สำรองข้อมูล (ไฟล์ .json)</button>
+  <button type="button" class="btn primary wide" id="backupBtn">⬇️ สำรองข้อมูล (ไฟล์สำรอง)</button>
   <button type="button" class="btn ghost wide" id="restoreBtn">📂 กู้คืน / นำเข้าจากไฟล์สำรอง</button>
   <input type="file" id="restoreFile" accept=".json,.txt,application/json,text/plain" hidden>
   <div class="meta" style="margin-top:10px;line-height:1.6">เก็บไฟล์สำรองไว้ใน Google Drive หรือ LINE Keep ถ้าเปลี่ยนเครื่องหรือข้อมูลหาย ให้กู้คืนจากไฟล์นี้ การกู้คืนจะแทนที่ข้อมูลทั้งหมดในเครื่องนี้</div>
@@ -371,6 +371,7 @@ async function load() {
   if (Store.mode === 'local') {
     Store.persist();
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+    versionNotice();
   }
   if (!DB) {
     DB = Store.empty();
@@ -414,11 +415,22 @@ function backupReminder() {
     <br><button class="add" data-act="backup">⬇️ สำรองเลย</button>`);
 }
 
+// shown in 💾 and toasted once after an update; bump together with VERSION in sw.js
+const APP_VERSION = '3 (19 พ.ย. 2026)';
+function versionNotice() {
+  try {
+    const seen = localStorage.getItem('fund-app-version');
+    localStorage.setItem('fund-app-version', APP_VERSION);
+    if (seen && seen !== APP_VERSION) toast('✅ อัปเดตเป็นเวอร์ชัน ' + APP_VERSION + ' แล้ว');
+  } catch (e) {}
+}
+
 function openData() {
   const last = Store.lastBackup();
   $('dataInfo').innerHTML = `ที่เก็บข้อมูล: <b>${Store.mode === 'server' ? 'ในคอม (data.json)' : 'ในเครื่องนี้'}</b><br>
     บันทึกไว้ ${DB.months.length} เดือน • หนี้ ${DB.debts.length} ก้อน<br>
-    สำรองล่าสุดจากเครื่องนี้: <b>${last ? last.toLocaleDateString('th-TH-u-ca-gregory', {day: 'numeric', month: 'short', year: 'numeric'}) : 'ยังไม่เคย'}</b>`;
+    สำรองล่าสุดจากเครื่องนี้: <b>${last ? last.toLocaleDateString('th-TH-u-ca-gregory', {day: 'numeric', month: 'short', year: 'numeric'}) : 'ยังไม่เคย'}</b><br>
+    เวอร์ชันแอป: <b>${APP_VERSION}</b>`;
   $('dataDlg').showModal();
 }
 
